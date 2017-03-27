@@ -4,9 +4,10 @@
 from selenium import webdriver
 import time
 
-username = 'your weibo accounts'##你的微博账号
-password = 'your weibo password'##你的微博密码
+# username = 'your weibo accounts'##你的微博账号
+# password = 'your weibo password'##你的微博密码
 weibo_url = "http://weibo.com/"
+
 
 
 def login_weibo_get_cookies():##登录获取cookies
@@ -16,7 +17,13 @@ def login_weibo_get_cookies():##登录获取cookies
 	driver.find_element_by_xpath("//a[@node-type='submitBtn']").click()##点击登录按钮
 	cookies = driver.get_cookies()##获取cookies
 	print cookies
-	return cookies
+	cookie = ""
+	##将返回的Cookies数组转成微博需要的cookie格式
+	for x in xrange(len(cookies)):
+		value = cookies[x]['name']+"="+cookies[x]['value']+";"
+		cookie = cookie+value
+	print cookie
+	return cookie
 
 
 
