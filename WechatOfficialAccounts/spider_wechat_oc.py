@@ -28,13 +28,13 @@ def get_html(html):
     print u"\nfinish   all%dphoto ╰(￣▽￣)╭ \n " % name_num
 
 
-def getHistoryUrlByWechatId(url):
+def get_history_url_by_wechatId(url):
 	soup = BeautifulSoup(url, "html.parser")
 	a = soup.find('a',uigs="main_toweixin_account_image_0")
 	resUrl = a.get('href')
 	return resUrl
 
-def getOnePageContentUrl(html):
+def get_one_page_content_url(html):
     name_num = 0
     start = 0
     end = 0
@@ -62,10 +62,10 @@ for x in xrange(len(wechatIdList)):
     baseUrl = 'http://weixin.sogou.com/weixin?type=1&query='+wechatIdList[x]+'&ie=utf8&_sug_=y&_sug_type_=1'
     response = urllib2.urlopen(baseUrl) 
     content = response.read()
-    historyUrl = getHistoryUrlByWechatId(content)
+    historyUrl = get_history_url_by_wechatId(content)
     print u'historyUrl:%s' % (historyUrl)
     response2 = urllib2.urlopen(historyUrl) 
-    urls =getOnePageContentUrl(response2)
+    urls =get_one_page_content_url(response2)
     for x in xrange(len(urls)):
         print urls[x]
         response = urllib2.urlopen(urls[x])  
