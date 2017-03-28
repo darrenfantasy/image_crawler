@@ -1,6 +1,11 @@
 # !/usr/bin/python
 # encoding:utf-8
-
+'''
+爬取微博的流程：因为微博调用接口的时候需要cookie,所以我们要用webdriver来登录微博获取cookie,微博的cookie有效期应该蛮长的，我设置过期时间6hours,未过期则去本地读取，否则重新登录获取cookie
+获取cookie后则分析微博网页端的请求，找到相应接口和参数，然后去请求我们要的数据。
+这个例子是去获取微博里的图片，例子爬取的微博是我伦的官方账号：MRJ台灣官方
+使用该代码前需要把 username和password换成你的微博账号和密码
+'''
 from selenium import webdriver
 import time
 import requests
@@ -15,8 +20,8 @@ image_result_file = "image_result.md"
 # password = 'your weibo password'##你的微博密码
 
 
-person_site_name = "mrj168"##想爬取的微博号的个性域名 无个性域名则换成: u/+"微博id" 如 u/12345678
-weibo_id = "1837498771"
+person_site_name = "mrj168"#想爬取的微博号的个性域名 无个性域名则换成: u/+"微博id" 如 u/12345678
+weibo_id = "1837498771"#微博id可以在网页端打开微博，显示网页源代码，找到关键词$CONFIG['oid']='1837498771'; 
 
 weibo_url = "http://weibo.com/"
 requset_url = "http://weibo.com/p/aj/v6/mblog/mbloglist?"
@@ -25,7 +30,7 @@ request_params = {"ajwvr":"6","domain":"100505","domain_op":"100505","feed_type"
 profile_request_params = {"profile_ftype":"1","is_all":"1"}
 
 
-headers = {##User-Agent需要根据每个人的电脑来修改
+headers = {#User-Agent需要根据每个人的电脑来修改
         'Accept': '*/*',
 		'Accept-Encoding': 'gzip, deflate, sdch',
 		'Accept-Language':'zh-CN,zh;q=0.8,en;q=0.6',
@@ -39,7 +44,7 @@ headers = {##User-Agent需要根据每个人的电脑来修改
 		'X-Requested-With':'XMLHttpRequest'
         }
 
-def get_timestamp():##获取当前系统时间戳
+def get_timestamp():#获取当前系统时间戳
     try:
         tamp = time.time()
         timestamp = str(int(tamp))+"000"
@@ -50,7 +55,7 @@ def get_timestamp():##获取当前系统时间戳
     finally:
         pass
 
-def login_weibo_get_cookies():##登录获取cookies
+def login_weibo_get_cookies():#登录获取cookies
 	time.sleep(2)
 	driver.find_element_by_name("username").send_keys(username)##输入用户名
 	driver.find_element_by_name("password").send_keys(password)##输入密码
@@ -65,7 +70,7 @@ def login_weibo_get_cookies():##登录获取cookies
 	print cookie
 	return cookie
 
-def save_cookie(cookie):##把cookie存到本地
+def save_cookie(cookie):#把cookie存到本地
     try:
         if os.path.isfile(cookie_save_file)==False:
             os.system("touch "+cookie_save_file) 
@@ -77,13 +82,13 @@ def save_cookie(cookie):##把cookie存到本地
     finally:
         pass
 
-def get_cookie_from_txt():##从本地文件里读取cookie
+def get_cookie_from_txt():#从本地文件里读取cookie
 	f = open(cookie_save_file)
 	cookie = f.read()
 	print cookie
 	return cookie
 
-def save_cookie_update_timestamp(timestamp):##把cookie存到本地
+def save_cookie_update_timestamp(timestamp):#把cookie存到本地
     try:
         if os.path.isfile(cookie_update_time_file)==False:
             os.system("touch "+cookie_update_time_file) 
@@ -96,7 +101,7 @@ def save_cookie_update_timestamp(timestamp):##把cookie存到本地
     finally:
         pass
 
-def get_cookie_update_time_from_txt():##获取上一次cookie更新时间
+def get_cookie_update_time_from_txt():#获取上一次cookie更新时间
 	try:
 		if os.path.isfile(cookie_update_time_file)==False:
 			os.system("touch "+cookie_update_time_file) 
@@ -127,7 +132,7 @@ def write_image_urls(image_list):
         pass
 
 
-def is_valid_cookie():##判断cookie是否有效
+def is_valid_cookie():#判断cookie是否有效
 	if os.path.isfile(cookie_update_time_file)==False:
 		return False
 	else :
@@ -142,7 +147,7 @@ def is_valid_cookie():##判断cookie是否有效
 			else :
 				return True
 
-def get_object_weibo_by_weibo_id_and_cookie(weibo_id,person_site_name,cookie,pagebar):##通过微博ID和cookie来调取接口
+def get_object_weibo_by_weibo_id_and_cookie(weibo_id,person_site_name,cookie,pagebar):#通过微博ID和cookie来调取接口
 	try:
 		headers["Cookie"] = cookie
 		headers['Referer'] = weibo_url+person_site_name+"?profile_ftype=1&is_all=1"
@@ -163,7 +168,7 @@ def get_object_weibo_by_weibo_id_and_cookie(weibo_id,person_site_name,cookie,pag
 		pass
 
 
-def get_object_top_weibo_by_person_site_name_and_cookie(person_site_name,cookie):##每一页顶部微博
+def get_object_top_weibo_by_person_site_name_and_cookie(person_site_name,cookie):#每一页顶部微博
 	try:
 		profile_url = weibo_url+person_site_name+"?"
 		headers["Cookie"] = cookie
@@ -190,7 +195,7 @@ def get_object_top_weibo_by_person_site_name_and_cookie(person_site_name,cookie)
 
 
 
-def get_img_urls_form_html(html):##从返回的html格式的字符串中获取图片
+def get_img_urls_form_html(html):#从返回的html格式的字符串中获取图片
 	try:
 		image_url_list = []
 		result_html = html.replace("\\","")
@@ -212,10 +217,10 @@ def get_img_urls_form_html(html):##从返回的html格式的字符串中获取�
 result = is_valid_cookie()
 print result
 if result == False:
-	driver = webdriver.Chrome("/Users/fantasy/Downloads/chromedriver")##打开Chrome
-	driver.maximize_window()##将浏览器最大化显示
-	driver.get(weibo_url)##打开微博登录页面
-	time.sleep(10)##因为加载页面需要时间，所以这里延时10s来确保页面已加载完毕
+	driver = webdriver.Chrome("/Users/fantasy/Downloads/chromedriver")#打开Chrome
+	driver.maximize_window()#将浏览器最大化显示
+	driver.get(weibo_url)#打开微博登录页面
+	time.sleep(10)#因为加载页面需要时间，所以这里延时10s来确保页面已加载完毕
 	cookie = login_weibo_get_cookies()
 	save_cookie(cookie)
 	save_cookie_update_timestamp(get_timestamp())
@@ -225,7 +230,7 @@ else :
 profile_html = get_object_top_weibo_by_person_site_name_and_cookie(person_site_name,cookie)
 image_url_list = get_img_urls_form_html(profile_html)
 write_image_urls(image_url_list)
-for x in xrange(0,2):##有两次下滑加载更多的操作
+for x in xrange(0,2):#有两次下滑加载更多的操作
 	print "pagebar:"+str(x)
 	html = get_object_weibo_by_weibo_id_and_cookie(weibo_id,person_site_name,cookie,x)
 	image_url_list = get_img_urls_form_html(html)
