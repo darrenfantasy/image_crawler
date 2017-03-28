@@ -10,8 +10,11 @@ import os
 
 cookie_save_file = "cookie.txt"
 cookie_update_time_file = "cookie_timestamp.txt"
+image_result_file = "image_result.md"
 # username = 'your weibo accounts'##你的微博账号
 # password = 'your weibo password'##你的微博密码
+username = 'biaoqingme@siyanhui.com'
+password = 'apphills0818'
 
 weibo_url = "http://weibo.com/"
 requset_url = "http://weibo.com/p/aj/v6/mblog/mbloglist?"
@@ -105,6 +108,22 @@ def get_cookie_update_time_from_txt():##获取上一次cookie更新时间
 	finally:
 		pass
 
+def write_image_urls(image_list):
+    try:
+    	if os.path.isfile(image_result_file)==False:
+    		os.system("touch "+image_result_file) 
+    	f= open(image_result_file,'a+')
+        for x in xrange(len(image_list)):
+        	image = image_list[x]
+        	show_image = "![]("+image+")"
+        	f.write(show_image.encode("utf-8"))
+        	f.write('\n')
+        f.close()
+    except Exception, e:
+        print e
+    finally:
+        pass
+
 
 def is_valid_cookie():##判断cookie是否有效
 	if os.path.isfile(cookie_update_time_file)==False:
@@ -147,9 +166,13 @@ def get_img_urls_form_json(jsonObj):##从返回的Json中获取图片
 		html = jsonObj["data"]
 		print html
 		soup = BeautifulSoup(html,"html.parser")
-		imageList = soup.find_all("img")
-		for x in xrange(len(imageList)):
-			print imageList[x].get("src")
+		image_list = soup.find_all("img")
+		image_url_list = []
+		for x in xrange(len(image_list)):
+			image_url = image_list[x].get("src")
+			print image_url
+			image_url_list.append(image_url)
+		return image_url_list
 	except Exception, e:
 		print e
 	finally:
@@ -169,6 +192,7 @@ else :
 save_cookie(cookie)
 save_cookie_update_timestamp(get_timestamp())
 jsonObj = get_object_weibo_by_weibo_id_and_cookie(example_weibo_id,cookie)
-get_img_urls_form_json(jsonObj)
+image_url_list = get_img_urls_form_json(jsonObj)
+write_image_urls(image_url_list)
 
 
