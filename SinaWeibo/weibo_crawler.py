@@ -13,14 +13,12 @@ cookie_update_time_file = "cookie_timestamp.txt"
 image_result_file = "image_result.md"
 # username = 'your weibo accounts'##你的微博账号
 # password = 'your weibo password'##你的微博密码
-username = 'biaoqingme@siyanhui.com'
-password = 'apphills0818'
 
 weibo_url = "http://weibo.com/"
 requset_url = "http://weibo.com/p/aj/v6/mblog/mbloglist?"
 example_weibo_id = "3278620272"##想爬取的微博号的ID
 request_params = {"ajwvr":"6","domain":"100505","domain_op":"100505","feed_type":"0","is_all":"1","is_tag":"0","is_search":"0"}
-
+profile_request_params = {"profile_ftype":"1","is_all":"1"}
 
 
 headers = {
@@ -140,20 +138,42 @@ def is_valid_cookie():##判断cookie是否有效
 			else :
 				return True
 
-def get_object_weibo_by_weibo_id_and_cookie(weibo_id,cookie):##通过微博ID和cookie来调取接口
+def get_object_weibo_by_weibo_id_and_cookie(weibo_id,cookie,pagebar):##通过微博ID和cookie来调取接口
 	try:
 		headers["Cookie"] = cookie
 		request_params["__rnd"] = get_timestamp()
 		request_params["page"] = 1
 		request_params["pre_page"] = 1
-		request_params["pagebar"] = 1
+		request_params["pagebar"] = pagebar
 		request_params["id"] = "100505"+weibo_id
 		request_params["script_uri"] = "/u/"+weibo_id
 		request_params["pl_name"] = "Pl_Official_MyProfileFeed__22"
 		request_params["profile_ftype"] = 1
 		response = requests.get(requset_url,headers=headers,params=request_params)
-		print response.json()
-		return response.json()
+		html =  response.json()["data"]
+		print html
+		return html
+	except Exception, e:
+		print e
+	finally:
+		pass
+
+
+def get_object_top_weibo_by_weibo_id_and_cookie(weibo_id,cookie):##每一页顶部微博
+	try:
+		profile_url = weibo_url+"u/"+weibo_id+"?"
+		headers["Cookie"] = cookie
+		response = requests.get(profile_url,headers=headers,params=profile_request_params)
+		html = response.text
+		# print html
+		soup = BeautifulSoup(html,"html.parser")
+		script_list = soup.find_all("script")
+		script_size = len(script_list)
+		# print script_list[script_size-1]
+		html_start = str(script_list[script_size-1]).find("<div")
+		html_end = str(script_list[script_size-1]).rfind("div>")
+		print str(script_list[script_size-1])[html_start:html_end+4]
+		return str(script_list[script_size-1])[html_start:html_end+4]
 	except Exception, e:
 		print e
 	finally:
@@ -161,17 +181,15 @@ def get_object_weibo_by_weibo_id_and_cookie(weibo_id,cookie):##通过微博ID和
 
 
 
-def get_img_urls_form_json(jsonObj):##从返回的Json中获取图片
+def get_img_urls_form_html(html):##从返回的Json中获取图片
 	try:
-		html = jsonObj["data"]
-		print html
 		soup = BeautifulSoup(html,"html.parser")
 		image_list = soup.find_all("img")
 		image_url_list = []
 		for x in xrange(len(image_list)):
-			image_url = image_list[x].get("src")
+			image_url = image_list[x].get("src").replace("\\","")
 			print image_url
-			image_url_list.append(image_url)
+			image_url_list.append(image_url.replace("\"",""))
 		return image_url_list
 	except Exception, e:
 		print e
@@ -191,8 +209,13 @@ else :
 	cookie = get_cookie_from_txt()
 save_cookie(cookie)
 save_cookie_update_timestamp(get_timestamp())
-jsonObj = get_object_weibo_by_weibo_id_and_cookie(example_weibo_id,cookie)
-image_url_list = get_img_urls_form_json(jsonObj)
+profile_html = get_object_top_weibo_by_weibo_id_and_cookie(example_weibo_id,cookie)
+image_url_list = get_img_urls_form_html(profile_html)
 write_image_urls(image_url_list)
+for x in xrange(0,2):
+	html = get_object_weibo_by_weibo_id_and_cookie(example_weibo_id,cookie,x)
+	image_url_list = get_img_urls_form_html(html)
+	write_image_urls(image_url_list)
+
 
 
