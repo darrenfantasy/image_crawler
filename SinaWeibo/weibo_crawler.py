@@ -13,21 +13,28 @@ import json
 from bs4 import BeautifulSoup
 import os
 
-cookie_save_file = "cookie.txt"
-cookie_update_time_file = "cookie_timestamp.txt"
-image_result_file = "image_result.md"
-# username = 'your weibo accounts'##你的微博账号
-# password = 'your weibo password'##你的微博密码
-
-
-person_site_name = "mrj168"#想爬取的微博号的个性域名 无个性域名则换成: u/+"微博id" 如 u/12345678
-weibo_id = "1837498771"#微博id可以在网页端打开微博，显示网页源代码，找到关键词$CONFIG['oid']='1837498771'; 
+request_params = {"ajwvr":"6","domain":"100505","domain_op":"100505","feed_type":"0","is_all":"1","is_tag":"0","is_search":"0"}
+profile_request_params = {"profile_ftype":"1","is_all":"1"}
 
 weibo_url = "http://weibo.com/"
 requset_url = "http://weibo.com/p/aj/v6/mblog/mbloglist?"
 
-request_params = {"ajwvr":"6","domain":"100505","domain_op":"100505","feed_type":"0","is_all":"1","is_tag":"0","is_search":"0"}
-profile_request_params = {"profile_ftype":"1","is_all":"1"}
+
+cookie_save_file = "cookie.txt"#存cookie的文件名
+cookie_update_time_file = "cookie_timestamp.txt"#存cookie时间戳的文件名
+image_result_file = "image_result.md"#存图片结果的文件名
+
+
+# username = 'your weibo accounts'##你的微博账号
+# password = 'your weibo password'##你的微博密码
+
+person_site_name = "mrj168"#想爬取的微博号的个性域名 无个性域名则换成: u/+"微博id" 如 u/12345678
+weibo_id = "1837498771"#微博id可以在网页端打开微博，显示网页源代码，找到关键词$CONFIG['oid']='1837498771'; 
+page_size = 2#你要爬取的微博的页数
+
+
+
+
 
 
 headers = {#User-Agent需要根据每个人的电脑来修改
@@ -147,19 +154,20 @@ def is_valid_cookie():#判断cookie是否有效
 			else :
 				return True
 
-def get_object_weibo_by_weibo_id_and_cookie(weibo_id,person_site_name,cookie,pagebar):#通过微博ID和cookie来调取接口
+def get_object_weibo_by_weibo_id_and_cookie(weibo_id,person_site_name,cookie,pagebar,page):#通过微博ID和cookie来调取接口
 	try:
 		headers["Cookie"] = cookie
 		headers['Referer'] = weibo_url+person_site_name+"?profile_ftype=1&is_all=1"
 		request_params["__rnd"] = get_timestamp()
-		request_params["page"] = 1
-		request_params["pre_page"] = 1
+		request_params["page"] = page
+		request_params["pre_page"] = page
 		request_params["pagebar"] = pagebar
 		request_params["id"] = "100505"+weibo_id
 		request_params["script_uri"] = "/"+person_site_name
 		request_params["pl_name"] = "Pl_Official_MyProfileFeed__22"
 		request_params["profile_ftype"] = 1
 		response = requests.get(requset_url,headers=headers,params=request_params)
+		print response.url
 		html =  response.json()["data"]
 		return html
 	except Exception, e:
@@ -168,11 +176,13 @@ def get_object_weibo_by_weibo_id_and_cookie(weibo_id,person_site_name,cookie,pag
 		pass
 
 
-def get_object_top_weibo_by_person_site_name_and_cookie(person_site_name,cookie):#每一页顶部微博
+def get_object_top_weibo_by_person_site_name_and_cookie(person_site_name,cookie,page):#每一页顶部微博
 	try:
 		profile_url = weibo_url+person_site_name+"?"
 		headers["Cookie"] = cookie
+		profile_request_params["page"] = page
 		response = requests.get(profile_url,headers=headers,params=profile_request_params)
+		print response.url
 		html = response.text
 		soup = BeautifulSoup(html,"html.parser")
 		script_list = soup.find_all("script")
@@ -226,15 +236,16 @@ if result == False:
 	save_cookie_update_timestamp(get_timestamp())
 else :
 	cookie = get_cookie_from_txt()
-
-profile_html = get_object_top_weibo_by_person_site_name_and_cookie(person_site_name,cookie)
-image_url_list = get_img_urls_form_html(profile_html)
-write_image_urls(image_url_list)
-for x in xrange(0,2):#有两次下滑加载更多的操作
-	print "pagebar:"+str(x)
-	html = get_object_weibo_by_weibo_id_and_cookie(weibo_id,person_site_name,cookie,x)
-	image_url_list = get_img_urls_form_html(html)
+for x in xrange(1,page_size＋1):
+	profile_html = get_object_top_weibo_by_person_site_name_and_cookie(person_site_name,cookie,x)
+	image_url_list = get_img_urls_form_html(profile_html)
 	write_image_urls(image_url_list)
+	for y in xrange(0,2):#有两次下滑加载更多的操作
+		print "pagebar:"+str(y)
+		html = get_object_weibo_by_weibo_id_and_cookie(weibo_id,person_site_name,cookie,y,x)
+		image_url_list = get_img_urls_form_html(html)
+		write_image_urls(image_url_list)
+
 
 
 
