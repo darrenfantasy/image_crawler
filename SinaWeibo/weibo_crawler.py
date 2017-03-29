@@ -30,7 +30,7 @@ image_result_file = "image_result.md"#存图片结果的文件名
 
 person_site_name = "mrj168"#想爬取的微博号的个性域名 无个性域名则换成: u/+"微博id" 如 u/12345678
 weibo_id = "1837498771"#微博id可以在网页端打开微博，显示网页源代码，找到关键词$CONFIG['oid']='1837498771'; 
-page_size = 2#你要爬取的微博的页数
+page_size = 5#你要爬取的微博的页数
 
 
 
@@ -236,7 +236,7 @@ if result == False:
 	save_cookie_update_timestamp(get_timestamp())
 else :
 	cookie = get_cookie_from_txt()
-for x in xrange(1,page_size＋1):
+for x in xrange(1,page_size+1):
 	profile_html = get_object_top_weibo_by_person_site_name_and_cookie(person_site_name,cookie,x)
 	image_url_list = get_img_urls_form_html(profile_html)
 	write_image_urls(image_url_list)
