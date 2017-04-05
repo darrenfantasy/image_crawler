@@ -4,7 +4,8 @@
 爬取微博的流程：因为微博调用接口的时候需要cookie,所以我们要用webdriver来登录微博获取cookie,微博的cookie有效期应该蛮长的，我设置过期时间6hours,未过期则去本地读取，否则重新登录获取cookie
 获取cookie后则分析微博网页端的请求，找到相应接口和参数，然后去请求我们要的数据。
 这个例子是去获取微博里的图片，例子爬取的微博是我伦的官方账号：MRJ台灣官方
-使用该代码前需要把 username和password换成你的微博账号和密码
+运行代码脚本需要加5个参数 分别为 1.微博账号 2.微博密码 3.要爬取的账号的个性域名（无个性域名则输入 u/+微博id）4.要爬取的账号的ID 5.爬取页数
+如：python weibo_crawler.py username password mrj168 1837498771 5
 '''
 from selenium import webdriver
 import time
@@ -12,6 +13,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import os
+import sys
 
 request_params = {"ajwvr":"6","domain":"100505","domain_op":"100505","feed_type":"0","is_all":"1","is_tag":"0","is_search":"0"}
 profile_request_params = {"profile_ftype":"1","is_all":"1"}
@@ -223,6 +225,21 @@ def get_img_urls_form_html(html):#从返回的html格式的字符串中获取图
 		print e
 	finally:
 		pass
+
+if(len(sys.argv)==6):
+	username = sys.argv[1]
+	password = sys.argv[2]
+	person_site_name = sys.argv[3]
+	weibo_id = sys.argv[4]
+	page_size = int(sys.argv[5])
+	print "微博账号："+username
+	print "微博密码："+password
+	print "要爬取的账号的个性域名（无个性域名则输入 u/+微博id ）："+person_site_name
+	print "要爬取的账号的ID："+weibo_id
+	print "爬取页数："+str(page_size)
+else:
+	print "未按照指定参数输入，请按顺序输入5个指定参数 1.微博账号 2.微博密码 3.要爬取的账号的个性域名（无个性域名则输入 u/+微博id）4.要爬取的账号的ID 5.爬取页数"
+	sys.exit(0)
 
 result = is_valid_cookie()
 print result
