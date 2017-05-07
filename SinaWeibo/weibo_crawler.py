@@ -244,7 +244,7 @@ else:
 result = is_valid_cookie()
 print result
 if result == False:
-	driver = webdriver.Chrome("/Users/fantasy/Downloads/chromedriver")#打开Chrome
+	driver = webdriver.Chrome("/Users/darrenfantasy/Documents/study/python/image_crawler/SinaWeibo/chromedriver")#打开Chrome
 	driver.maximize_window()#将浏览器最大化显示
 	driver.get(weibo_url)#打开微博登录页面
 	time.sleep(10)#因为加载页面需要时间，所以这里延时10s来确保页面已加载完毕
