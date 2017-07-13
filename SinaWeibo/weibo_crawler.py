@@ -49,7 +49,7 @@ headers = {#User-Agent需要根据每个人的电脑来修改
 		'Host':'weibo.com',
 		'Pragma':'no-cache',
 		'Referer':'http://weibo.com/u/3278620272?profile_ftype=1&is_all=1',
-		'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+		'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
 		'X-Requested-With':'XMLHttpRequest'
         }
 
@@ -81,8 +81,6 @@ def login_weibo_get_cookies():#登录获取cookies
 
 def save_cookie(cookie):#把cookie存到本地
     try:
-        if os.path.isfile(cookie_save_file)==False:
-            os.system("touch "+cookie_save_file) 
         f= open(cookie_save_file,'w')
         f.write(cookie)
         f.close()
@@ -99,8 +97,6 @@ def get_cookie_from_txt():#从本地文件里读取cookie
 
 def save_cookie_update_timestamp(timestamp):#把cookie存到本地
     try:
-        if os.path.isfile(cookie_update_time_file)==False:
-            os.system("touch "+cookie_update_time_file) 
         f= open(cookie_update_time_file,'w')
         f.write(timestamp)
         f.write('\n')
@@ -112,8 +108,6 @@ def save_cookie_update_timestamp(timestamp):#把cookie存到本地
 
 def get_cookie_update_time_from_txt():#获取上一次cookie更新时间
 	try:
-		if os.path.isfile(cookie_update_time_file)==False:
-			os.system("touch "+cookie_update_time_file) 
 		f = open(cookie_update_time_file)
 		lines = f.readlines()
 		cookie_update_time = lines[0]
@@ -126,8 +120,6 @@ def get_cookie_update_time_from_txt():#获取上一次cookie更新时间
 
 def write_image_urls(image_list):
     try:
-    	if os.path.isfile(image_result_file)==False:
-    		os.system("touch "+image_result_file) 
     	f= open(image_result_file,'a+')
         for x in xrange(len(image_list)):
         	image = image_list[x]
