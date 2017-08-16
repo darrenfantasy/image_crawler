@@ -34,11 +34,11 @@ try:
     # values = [item["subject_id"],item["movie_name"],item["directors_cn_names"],item["directors_en_names"],item["actors_cn_names"],item["actors_en_names"],item["genres"],item["tags"],item["languages"],item["average"],item["alternate_name"],item["countries"]]
     try:
       values = [item["subject_id"],item["movie_name"],','.join(item["directors_cn_names"]),','.join(item["directors_en_names"]),','.join(item["actors_cn_names"]),','.join(item["actors_en_names"]),','.join(item["genres"]),','.join(item["tags"]),','.join(item["languages"]),item["average"],','.join(item["alternate_name"]),','.join(item["countries"])]
+      cur.execute('insert into douban_movie(subject_id,movie_name,directors_cn_names,directors_en_names,actors_cn_names,actors_en_names,genres,tags,languages,average,alternate_name,countries) value(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',values)
     except KeyError, e:
       print e
     finally:
       pass
-    cur.execute('insert into douban_movie(subject_id,movie_name,directors_cn_names,directors_en_names,actors_cn_names,actors_en_names,genres,tags,languages,average,alternate_name,countries) value(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',values)
   cur.close()
 except Exception, e:
   print e
